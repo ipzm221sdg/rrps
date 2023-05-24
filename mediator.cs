@@ -2,87 +2,80 @@ using System;
 
 namespace main
 {
-    public interface IMediator
+    public interface Mediator
     {
         void Notify(object sender, string ev);
     }
 
-    class ConcreteMediator : IMediator
+    class AuthenticationDialog : Mediator
     {
-        private Component1 _component1;
+        private Button _button;
+        private Textbox _textbox;
+        private Checkbox _checkbox;
 
-        private Component2 _component2;
-
-        public ConcreteMediator(Component1 component1, Component2 component2)
+        public AuthenticationDialog(Button button, Textbox textbox, Checkbox checkbox)
         {
-            this._component1 = component1;
-            this._component1.SetMediator(this);
-            this._component2 = component2;
-            this._component2.SetMediator(this);
+            this._button = button;
+            this._button.SetMediator(this);
+            this._textbox = textbox;
+            this._textbox.SetMediator(this);
+            this._checkbox = checkbox;
+            this._checkbox.SetMediator(this);
         } 
 
         public void Notify(object sender, string ev)
         {
-            if (ev == "A")
+            if (ev == "click")
             {
-                Console.WriteLine("Mediator reacts on A and triggers folowing operations:");
-                this._component2.DoC();
+                Console.WriteLine("Button was clicked on.");
             }
-            if (ev == "D")
+            if (ev == "keypress")
             {
-                Console.WriteLine("Mediator reacts on D and triggers following operations:");
-                this._component1.DoB();
-                this._component2.DoC();
+                Console.WriteLine("Text was entered.");
+            }
+            if (ev == "check")
+            {
+                Console.WriteLine("Checkbox was checked.");
             }
         }
     }
 
-    class BaseComponent
+    class Component
     {
-        protected IMediator _mediator;
+        protected Mediator _mediator;
 
-        public BaseComponent(IMediator mediator = null)
+        public Component(Mediator mediator = null)
         {
             this._mediator = mediator;
         }
 
-        public void SetMediator(IMediator mediator)
+        public void SetMediator(Mediator mediator)
         {
             this._mediator = mediator;
         }
     }
 
-    class Component1 : BaseComponent
+    class Button : Component
     {
-        public void DoA()
+        public void Click()
         {
-            Console.WriteLine("Component 1 does A.");
-
-            this._mediator.Notify(this, "A");
-        }
-
-        public void DoB()
-        {
-            Console.WriteLine("Component 1 does B.");
-
-            this._mediator.Notify(this, "B");
+            this._mediator.Notify(this, "click");
         }
     }
 
-    class Component2 : BaseComponent
+    class Textbox : Component
     {
-        public void DoC()
+        public void KeyPress()
         {
-            Console.WriteLine("Component 2 does C.");
-
-            this._mediator.Notify(this, "C");
+            this._mediator.Notify(this, "keypress");
         }
-
-        public void DoD()
+    }
+    
+    class Checkbox : Component
+    {
+        public void Check()
         {
-            Console.WriteLine("Component 2 does D.");
-
-            this._mediator.Notify(this, "D");
+            this._mediator.Notify(this, "check");
         }
     }
     
@@ -90,17 +83,19 @@ namespace main
     {
         static void Main(string[] args)
         {
-            Component1 component1 = new Component1();
-            Component2 component2 = new Component2();
-            new ConcreteMediator(component1, component2);
+            Button button = new Button();
+            Textbox textbox = new Textbox();
+            Checkbox checkbox = new Checkbox();
+            new  AuthenticationDialog(button, textbox, checkbox);
 
-            Console.WriteLine("Client triggers operation A.");
-            component1.DoA();
+            Console.WriteLine("Client clicks a button.");
+            button.Click();
 
-            Console.WriteLine();
-
-            Console.WriteLine("Client triggers operation D.");
-            component2.DoD();
+            Console.WriteLine("Client enters text.");
+            textbox.KeyPress();
+            
+            Console.WriteLine("Client checks a box.");
+            checkbox.Check();
         }
     }
 }
