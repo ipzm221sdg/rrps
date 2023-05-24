@@ -2,38 +2,38 @@ using System;
 
 namespace main
 {
-    public abstract class Component
+    public abstract class Notifier
     {
-        public abstract string Operation();
+        public abstract string Send();
     }
 
-    class ConcreteComponent : Component
+    class Notification : Notifier
     {
-        public override string Operation()
+        public override string Send()
         {
-            return "ConcreteComponent";
+            return "A notification message";
         }
     }
 
-    abstract class Decorator : Component
+    abstract class Decorator : Notifier
     {
-        protected Component _component;
+        protected Notifier _notifier;
 
-        public Decorator(Component component)
+        public Decorator(Notifier notifier)
         {
-            this._component = component;
+            this._notifier = notifier;
         }
 
-        public void SetComponent(Component component)
+        public void SetNotifier(Notifier notifier)
         {
-            this._component = component;
+            this._notifier = notifier;
         }
 
-        public override string Operation()
+        public override string Send()
         {
-            if (this._component != null)
+            if (this._notifier != null)
             {
-                return this._component.Operation();
+                return this._notifier.Send();
             }
             else
             {
@@ -42,35 +42,47 @@ namespace main
         }
     }
 
-    class ConcreteDecoratorA : Decorator
+    class SMSDecorator : Decorator
     {
-        public ConcreteDecoratorA(Component comp) : base(comp)
+        public SMSDecorator(Notifier ntf) : base(ntf)
         {
         }
 
-       public override string Operation()
+       public override string Send()
         {
-            return $"ConcreteDecoratorA({base.Operation()})";
+            return $"SMS({base.Send()})";
         }
     }
 
-    class ConcreteDecoratorB : Decorator
+    class FBDecorator : Decorator
     {
-        public ConcreteDecoratorB(Component comp) : base(comp)
+        public FBDecorator(Notifier ntf) : base(ntf)
         {
         }
 
-        public override string Operation()
+        public override string Send()
         {
-            return $"ConcreteDecoratorB({base.Operation()})";
+            return $"FB({base.Send()})";
+        }
+    }
+    
+    class SlackDecorator : Decorator
+    {
+        public SlackDecorator(Notifier ntf) : base(ntf)
+        {
+        }
+
+        public override string Send()
+        {
+            return $"Slack({base.Send()})";
         }
     }
     
     public class Client
     {
-        public void ClientCode(Component component)
+        public void ClientCode(Notifier notifier)
         {
-            Console.WriteLine("RESULT: " + component.Operation());
+            Console.WriteLine("RESULT: " + notifier.Send());
         }
     }
     
@@ -80,15 +92,18 @@ namespace main
         {
             Client client = new Client();
 
-            var simple = new ConcreteComponent();
-            Console.WriteLine("Client: I get a simple component:");
+            var simple = new Notification();
+            Console.WriteLine("Client: I get a simple notification:");
             client.ClientCode(simple);
             Console.WriteLine();
 
-            ConcreteDecoratorA decorator1 = new ConcreteDecoratorA(simple);
-            ConcreteDecoratorB decorator2 = new ConcreteDecoratorB(decorator1);
-            Console.WriteLine("Client: Now I've got a decorated component:");
-            client.ClientCode(decorator2);
+            SMSDecorator sms = new SMSDecorator(simple);
+            FBDecorator fb = new FBDecorator(sms);
+            SlackDecorator slack = new SlackDecorator(simple);
+            Console.WriteLine("Client: Now I will receive both sms and facebook notification:");
+            client.ClientCode(fb);
+            Console.WriteLine("Client: And then I will receive a slack notification:");
+            client.ClientCode(slack);
         }
     }
 }
