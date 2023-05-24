@@ -2,54 +2,70 @@ using System;
 
 namespace main
 {
-    abstract class Creator
+    abstract class Logistics
     {
-       public abstract IProduct FactoryMethod();
+       public abstract Transport CreateTransport();
        
-       public string SomeOperation()
+       public string PlanDelivery()
         {
-            var product = FactoryMethod();
-            var result = "Creator: The same creator's code has just worked with "
-                + product.Operation();
+            var transport = CreateTransport();
+            var result = "Logistics: The product has been "
+                + transport.Deliver() + "\n";
 
             return result;
         }
     }
 
-   class ConcreteCreator1 : Creator
+   class RoadLogistics : Logistics
     {
-       public override IProduct FactoryMethod()
+        public override Transport CreateTransport()
         {
-            return new ConcreteProduct1();
+            return new Truck();
         }
     }
 
-    class ConcreteCreator2 : Creator
+    class SeaLogistics : Logistics
     {
-        public override IProduct FactoryMethod()
+        public override Transport CreateTransport()
         {
-            return new ConcreteProduct2();
+            return new Truck();
+        }
+    }
+    
+    class AirLogistics : Logistics
+    {
+        public override Transport CreateTransport()
+        {
+            return new Plane();
         }
     }
 
-    public interface IProduct
+    public interface Transport
     {
-        string Operation();
+        string Deliver();
     }
 
-    class ConcreteProduct1 : IProduct
+    class Truck : Transport
     {
-        public string Operation()
+        public string Deliver()
         {
-            return "{Result of ConcreteProduct1}";
+            return "{delivered by truck}";
         }
     }
 
-    class ConcreteProduct2 : IProduct
+    class Ship : Transport
     {
-        public string Operation()
+        public string Deliver()
         {
-            return "{Result of ConcreteProduct2}";
+            return "{delivered by ship}";
+        }
+    }
+    
+    class Plane : Transport
+    {
+        public string Deliver()
+        {
+            return "{delivered by plane}";
         }
     }
 
@@ -57,19 +73,24 @@ namespace main
     {
         public void Main()
         {
-            Console.WriteLine("App: Launched with the ConcreteCreator1.");
-            ClientCode(new ConcreteCreator1());
+            Console.WriteLine("App: Products sent by road.\n");
+            ClientCode(new RoadLogistics());
             
             Console.WriteLine("");
 
-            Console.WriteLine("App: Launched with the ConcreteCreator2.");
-            ClientCode(new ConcreteCreator2());
+            Console.WriteLine("App: Products sent by water.\n");
+            ClientCode(new SeaLogistics());
+            
+            Console.WriteLine("");
+
+            Console.WriteLine("App: Products sent by air.\n");
+            ClientCode(new AirLogistics());
         }
 
-       public void ClientCode(Creator creator)
+       public void ClientCode(Logistics logistics)
         {
-            Console.WriteLine("Client: I'm not aware of the creator's class," +
-                "but it still works.\n" + creator.SomeOperation());
+            Console.WriteLine("Client: I'm not aware of the creator's class, " +
+                "but it still works.\n" + logistics.PlanDelivery());
         }
     }
 
